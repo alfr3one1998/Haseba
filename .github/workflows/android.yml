@@ -24,6 +24,10 @@ jobs:
           gradle-version: '8.11.1'
       - name: Install Android SDK
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.android/debug.keystore
+          key: haseba-android-signing-v2
       - name: Build installable APK
         working-directory: android
         run: gradle assembleDebug
