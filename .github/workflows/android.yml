@@ -4,6 +4,9 @@ on:
     branches: [main]
     paths: ['android/**', '.github/workflows/android.yml']
   workflow_dispatch:
+concurrency:
+  group: haseba-android-build
+  cancel-in-progress: true
 permissions:
   contents: read
 jobs:
