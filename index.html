@@ -1,0 +1,1039 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="حاسبة سعر الكيك وعدد الأشخاص، مع اقتراح المقاس المناسب من الميزانية."
+    />
+    <meta name="theme-color" content="#123230" />
+    <title>حاسبة مقاسات الكيك</title>
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23123230'/%3E%3Cpath d='M19 22h26M19 42h26M24 17v30M40 17v30' stroke='%23F3C971' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --forest: #123230;
+        --forest-deep: #0b211f;
+        --gold: #f3c971;
+        --gold-strong: #dfaf57;
+        --paper: #fffdf9;
+        --canvas: #f1eee7;
+        --ink: #172826;
+        --muted: #68736f;
+        --line: #dfe2d8;
+        --danger: #9f4936;
+        --shadow: 0 24px 55px rgba(14, 40, 37, 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-width: 320px;
+        background: var(--canvas);
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 9% 6%, rgba(243, 201, 113, 0.25), transparent 23rem),
+          linear-gradient(135deg, #edf0e8 0%, #f9f7f1 48%, #ece8dc 100%);
+        font-family: "IBM Plex Sans Arabic", "Noto Sans Arabic", Tahoma, Arial, sans-serif;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .app-shell {
+        width: min(1060px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: clamp(28px, 6vw, 72px) 0 42px;
+      }
+
+      .masthead {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 22px;
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin: 0 0 8px;
+        color: #43605a;
+        font-size: 0.84rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+      }
+
+      .eyebrow::before {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--gold-strong);
+        content: "";
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 7px;
+        font-size: clamp(1.72rem, 4vw, 2.5rem);
+        line-height: 1.18;
+        letter-spacing: -0.03em;
+      }
+
+      .intro {
+        max-width: 620px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.75;
+      }
+
+      .unit-note {
+        flex: 0 0 auto;
+        margin: 0 0 4px;
+        color: #52605b;
+        font-size: 0.9rem;
+        font-weight: 700;
+      }
+
+      .calculator {
+        display: grid;
+        grid-template-columns: minmax(0, 1.18fr) minmax(285px, 0.82fr);
+        overflow: hidden;
+        border: 1px solid rgba(18, 50, 48, 0.12);
+        border-radius: 28px;
+        background: rgba(255, 253, 249, 0.9);
+        box-shadow: var(--shadow);
+      }
+
+      .form-panel {
+        padding: clamp(24px, 4vw, 42px);
+      }
+
+      .section-title {
+        margin-bottom: 5px;
+        font-size: 1.14rem;
+      }
+
+      .section-help {
+        margin-bottom: 24px;
+        color: var(--muted);
+        font-size: 0.93rem;
+        line-height: 1.7;
+      }
+
+      .field-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .field {
+        display: block;
+      }
+
+      .field-label {
+        display: block;
+        margin: 0 0 8px;
+        color: #40514c;
+        font-size: 0.87rem;
+        font-weight: 800;
+      }
+
+      .input-wrap {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 58px;
+        padding: 0 15px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: #fff;
+        transition: border-color 160ms ease, box-shadow 160ms ease;
+      }
+
+      .input-wrap:focus-within {
+        border-color: #5c8177;
+        box-shadow: 0 0 0 4px rgba(92, 129, 119, 0.12);
+      }
+
+      input {
+        width: 100%;
+        min-width: 0;
+        border: 0;
+        outline: 0;
+        color: var(--ink);
+        background: transparent;
+        font-size: 1.18rem;
+        font-weight: 800;
+        text-align: center;
+      }
+
+      .unit {
+        color: #71817b;
+        font-size: 0.85rem;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .calculate-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        min-height: 56px;
+        margin-top: 18px;
+        border: 0;
+        border-radius: 15px;
+        color: #182522;
+        background: var(--gold);
+        box-shadow: 0 12px 22px rgba(213, 162, 74, 0.2);
+        font-weight: 900;
+        transition: transform 160ms ease, background 160ms ease;
+      }
+
+      .calculate-button:hover {
+        background: #f6d486;
+        transform: translateY(-1px);
+      }
+
+      .calculate-button:focus-visible {
+        outline: 3px solid rgba(209, 168, 92, 0.55);
+        outline-offset: 3px;
+      }
+
+      .calculation-note {
+        margin-top: 22px;
+        padding: 15px 16px;
+        border: 1px solid #d6dfd6;
+        border-radius: 15px;
+        background: #f5f8f3;
+      }
+
+      .calculation-note strong {
+        display: block;
+        color: #40514c;
+        font-size: 0.86rem;
+        font-weight: 800;
+      }
+
+      .calculation-note p {
+        margin: 5px 0 0;
+        color: #60716b;
+        font-size: 0.84rem;
+        font-weight: 700;
+        line-height: 1.7;
+      }
+
+      .result-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 28px;
+        padding: clamp(25px, 4vw, 42px);
+        color: #f7f4e9;
+        background:
+          radial-gradient(circle at 90% 4%, rgba(243, 201, 113, 0.32), transparent 12rem),
+          linear-gradient(145deg, var(--forest), var(--forest-deep));
+      }
+
+      .result-kicker {
+        margin-bottom: 18px;
+        color: rgba(247, 244, 233, 0.72);
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+
+      .price-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 9px;
+        direction: rtl;
+      }
+
+      .price {
+        color: var(--gold);
+        font-size: clamp(3.5rem, 9vw, 5.7rem);
+        font-weight: 900;
+        line-height: 0.82;
+        letter-spacing: -0.07em;
+      }
+
+      .currency {
+        padding-bottom: 6px;
+        color: rgba(247, 244, 233, 0.72);
+        font-size: 0.98rem;
+        font-weight: 800;
+      }
+
+      .result-rule {
+        width: 44px;
+        height: 4px;
+        margin: 22px 0 16px;
+        border-radius: 99px;
+        background: var(--gold);
+      }
+
+      .result-message {
+        max-width: 270px;
+        margin-bottom: 0;
+        color: rgba(247, 244, 233, 0.86);
+        font-size: 1rem;
+        font-weight: 700;
+        line-height: 1.8;
+      }
+
+      .result-panel.is-unavailable .price {
+        color: #f6d8cf;
+      }
+
+      .status-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-top: 18px;
+        border-top: 1px solid rgba(247, 244, 233, 0.17);
+        color: rgba(247, 244, 233, 0.72);
+        font-size: 0.82rem;
+        font-weight: 700;
+        line-height: 1.55;
+      }
+
+      .status-box::before {
+        width: 8px;
+        height: 8px;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        background: var(--gold);
+        content: "";
+      }
+
+      .servings-card {
+        padding: 15px 16px;
+        border: 1px solid rgba(247, 244, 233, 0.18);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.07);
+      }
+
+      .servings-label,
+      .servings-note {
+        display: block;
+        color: rgba(247, 244, 233, 0.72);
+        font-size: 0.78rem;
+        font-weight: 800;
+      }
+
+      .servings-value {
+        display: flex;
+        align-items: baseline;
+        gap: 7px;
+        margin: 5px 0 3px;
+      }
+
+      .servings-count {
+        color: var(--gold);
+        font-size: 2rem;
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .servings-person {
+        color: rgba(247, 244, 233, 0.93);
+        font-size: 0.92rem;
+        font-weight: 800;
+      }
+
+      .reverse-calculator {
+        display: grid;
+        grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+        gap: clamp(24px, 5vw, 62px);
+        margin-top: 20px;
+        padding: clamp(24px, 4vw, 38px);
+        border: 1px solid rgba(18, 50, 48, 0.12);
+        border-radius: 28px;
+        background: rgba(255, 253, 249, 0.92);
+        box-shadow: 0 18px 42px rgba(14, 40, 37, 0.1);
+      }
+
+      .reverse-copy .eyebrow {
+        margin-bottom: 10px;
+      }
+
+      .reverse-copy h2 {
+        margin-bottom: 8px;
+        font-size: clamp(1.36rem, 3vw, 1.78rem);
+      }
+
+      .reverse-copy p:last-child {
+        max-width: 330px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 0.94rem;
+        font-weight: 700;
+        line-height: 1.75;
+      }
+
+      .reverse-form {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .reverse-form .calculate-button {
+        grid-column: 1 / -1;
+        margin-top: 4px;
+      }
+
+      .budget-result {
+        margin-top: 16px;
+        padding: 18px;
+        border: 1px solid #d6dfd6;
+        border-radius: 18px;
+        background: #f5f8f3;
+      }
+
+      .budget-result.is-unavailable {
+        border-color: #ead6d0;
+        background: #fff8f5;
+      }
+
+      .budget-kicker {
+        margin-bottom: 5px;
+        color: #587068;
+        font-size: 0.78rem;
+        font-weight: 900;
+      }
+
+      .suggested-size {
+        margin-bottom: 7px;
+        color: var(--forest);
+        direction: ltr;
+        font-size: clamp(1.56rem, 4vw, 2.25rem);
+        font-weight: 900;
+        line-height: 1.1;
+        text-align: right;
+        unicode-bidi: plaintext;
+      }
+
+      .suggested-unit {
+        color: #5b6f69;
+        font-size: 0.86rem;
+        font-weight: 800;
+      }
+
+      .suggestion-message,
+      .suggestion-servings {
+        margin-bottom: 0;
+        color: #5e706a;
+        font-size: 0.85rem;
+        font-weight: 700;
+        line-height: 1.65;
+      }
+
+      .suggestion-servings {
+        margin-top: 5px;
+      }
+
+      .use-suggestion {
+        width: 100%;
+        min-height: 43px;
+        margin-top: 14px;
+        border: 1px solid #b9c8c0;
+        border-radius: 12px;
+        color: #24453e;
+        background: #fff;
+        font-size: 0.86rem;
+        font-weight: 900;
+        transition: background 160ms ease, transform 160ms ease;
+      }
+
+      .use-suggestion:hover {
+        background: #e9f1eb;
+        transform: translateY(-1px);
+      }
+
+      .use-suggestion:focus-visible {
+        outline: 3px solid rgba(92, 129, 119, 0.35);
+        outline-offset: 3px;
+      }
+
+      @media (max-width: 720px) {
+        .masthead {
+          display: block;
+        }
+
+        .unit-note {
+          margin-top: 12px;
+        }
+
+        .calculator {
+          grid-template-columns: 1fr;
+          border-radius: 23px;
+        }
+
+        .result-panel {
+          min-height: 285px;
+        }
+
+        .reverse-calculator {
+          grid-template-columns: 1fr;
+          border-radius: 23px;
+        }
+      }
+
+      @media (max-width: 400px) {
+        .app-shell {
+          width: min(100% - 22px, 1060px);
+          padding-top: 22px;
+        }
+
+        .form-panel,
+        .result-panel {
+          padding: 22px;
+        }
+
+        .field-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .reverse-form {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">تسعير سريع</p>
+          <h1>حاسبة مقاسات الكيك</h1>
+          <p class="intro">أدخل الطول والعرض لمعرفة السعر وعدد الأشخاص، أو أدخل ميزانيتك لنقترح لك مقاساً مناسباً.</p>
+        </div>
+        <p class="unit-note">جميع المقاسات بالسنتيمتر</p>
+      </header>
+
+      <section class="calculator" aria-label="حاسبة سعر الكيك">
+        <div class="form-panel">
+          <h2 class="section-title">أدخل المقاس</h2>
+          <p class="section-help">المقاسات الأصلية لها أسعار ثابتة، وأي مقاس آخر يُحسب تلقائياً.</p>
+
+          <form id="cake-form" novalidate>
+            <div class="field-grid">
+              <label class="field" for="length">
+                <span class="field-label">الطول</span>
+                <span class="input-wrap">
+                  <input id="length" name="length" value="50" inputmode="decimal" autocomplete="off" aria-describedby="size-help" />
+                  <span class="unit">سم</span>
+                </span>
+              </label>
+
+              <label class="field" for="width">
+                <span class="field-label">العرض</span>
+                <span class="input-wrap">
+                  <input id="width" name="width" value="35" inputmode="decimal" autocomplete="off" aria-describedby="size-help" />
+                  <span class="unit">سم</span>
+                </span>
+              </label>
+            </div>
+            <span id="size-help" hidden>السعر يحسب من مساحة الكيكة وتدرج المقاسات المعتمدة.</span>
+            <button class="calculate-button" type="submit">احسب السعر</button>
+          </form>
+
+          <div class="calculation-note" aria-label="قاعدة الحساب">
+            <strong>المقاسات المرجعية المعتمدة</strong>
+            <p>٤٠×٣٠ = ٢٠٠ · ٤٥×٣٥ = ٢٥٠ · ٥٠×٣٥ = ٣٠٠ · ٦٠×٤٠ = ٤٥٠ ريال.</p>
+          </div>
+        </div>
+
+        <aside id="result-panel" class="result-panel" aria-live="polite">
+          <div>
+            <p class="result-kicker">السعر المحسوب</p>
+            <div class="price-row">
+              <span id="price" class="price">٣٠٠</span>
+              <span id="currency" class="currency">ريال سعودي</span>
+            </div>
+            <div class="result-rule"></div>
+            <p id="result-message" class="result-message">المقاس ٥٠ × ٣٥ سم مطابق لسعر مرجعي.</p>
+          </div>
+          <div class="servings-card" aria-label="عدد الأشخاص التقريبي">
+            <span class="servings-label">تكفي تقريباً</span>
+            <div class="servings-value">
+              <span id="servings-count" class="servings-count">٣٥</span>
+              <span class="servings-person">شخصاً</span>
+            </div>
+            <span class="servings-note">على أساس قطعة متوسطة ٥ × ١٠ سم</span>
+          </div>
+          <p id="status-text" class="status-box">تمت مطابقة السعر من المقاسات المعتمدة.</p>
+        </aside>
+      </section>
+
+      <section class="reverse-calculator" aria-label="اقتراح مقاس الكيك من السعر">
+        <div class="reverse-copy">
+          <p class="eyebrow">من السعر إلى المقاس</p>
+          <h2>حدد ميزانيتك</h2>
+          <p>اكتب السعر وسنقترح مقاساً متوازناً. وإذا كنت تحتاج عرضاً معيناً، اكتبه وسنحسب الطول المناسب له.</p>
+        </div>
+
+        <div>
+          <form id="budget-form" class="reverse-form" novalidate>
+            <label class="field" for="budget">
+              <span class="field-label">السعر المتاح</span>
+              <span class="input-wrap">
+                <input id="budget" name="budget" value="300" inputmode="decimal" autocomplete="off" aria-describedby="budget-help" />
+                <span class="unit">ريال</span>
+              </span>
+            </label>
+
+            <label class="field" for="preferred-width">
+              <span class="field-label">العرض المطلوب <span aria-hidden="true">(اختياري)</span></span>
+              <span class="input-wrap">
+                <input id="preferred-width" name="preferredWidth" inputmode="decimal" autocomplete="off" aria-describedby="budget-help" />
+                <span class="unit">سم</span>
+              </span>
+            </label>
+            <span id="budget-help" hidden>أدخل السعر فقط للمقاس المقترح، أو أضف العرض المطلوب لحساب طول يناسبه.</span>
+            <button class="calculate-button" type="submit">اقترح المقاس</button>
+          </form>
+
+          <div id="budget-result" class="budget-result" aria-live="polite">
+            <p class="budget-kicker">المقاس المقترح</p>
+            <p id="suggested-size" class="suggested-size">٥٠ × ٣٥ <span class="suggested-unit">سم</span></p>
+            <p id="suggestion-message" class="suggestion-message">هذا السعر يطابق مقاساً مرجعياً معتمداً.</p>
+            <p id="suggestion-servings" class="suggestion-servings">يكفي تقريباً ٣٥ شخصاً.</p>
+            <button id="use-suggestion" class="use-suggestion" type="button">استخدم هذا المقاس في الحاسبة</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <script>
+      (function () {
+        var priceReferences = [
+          { length: 40, width: 30, area: 1200, price: 200 },
+          { length: 45, width: 35, area: 1575, price: 250 },
+          { length: 50, width: 35, area: 1750, price: 300 },
+          { length: 60, width: 40, area: 2400, price: 450 }
+        ];
+        var SERVING_AREA_CM2 = 50;
+
+        var form = document.getElementById("cake-form");
+        var lengthInput = document.getElementById("length");
+        var widthInput = document.getElementById("width");
+        var priceElement = document.getElementById("price");
+        var currencyElement = document.getElementById("currency");
+        var messageElement = document.getElementById("result-message");
+        var statusElement = document.getElementById("status-text");
+        var resultPanel = document.getElementById("result-panel");
+        var servingsElement = document.getElementById("servings-count");
+        var budgetForm = document.getElementById("budget-form");
+        var budgetInput = document.getElementById("budget");
+        var preferredWidthInput = document.getElementById("preferred-width");
+        var budgetResult = document.getElementById("budget-result");
+        var suggestedSizeElement = document.getElementById("suggested-size");
+        var suggestionMessageElement = document.getElementById("suggestion-message");
+        var suggestionServingsElement = document.getElementById("suggestion-servings");
+        var useSuggestionButton = document.getElementById("use-suggestion");
+        var lastSuggestion = null;
+
+        function toWesternDigits(value) {
+          var arabicDigits = "٠١٢٣٤٥٦٧٨٩";
+          var easternDigits = "۰۱۲۳۴۵۶۷۸۹";
+          return String(value)
+            .replace(/[٠-٩]/g, function (digit) {
+              return String(arabicDigits.indexOf(digit));
+            })
+            .replace(/[۰-۹]/g, function (digit) {
+              return String(easternDigits.indexOf(digit));
+            })
+            .replace(/،/g, ".")
+            .trim();
+        }
+
+        function parseMeasurement(value) {
+          var parsed = Number(toWesternDigits(value));
+          return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+        }
+
+        function calculatePrice(length, width) {
+          var area = length * width;
+          var exactReference = priceReferences.find(function (item) {
+            return item.area === area;
+          });
+
+          if (exactReference) {
+            return { area: area, price: exactReference.price, isReference: true, reference: exactReference };
+          }
+
+          var lower = priceReferences[0];
+          var upper = priceReferences[1];
+          var lastIndex = priceReferences.length - 1;
+
+          if (area >= priceReferences[lastIndex].area) {
+            lower = priceReferences[lastIndex - 1];
+            upper = priceReferences[lastIndex];
+          } else {
+            for (var index = 1; index < priceReferences.length; index += 1) {
+              if (area <= priceReferences[index].area) {
+                lower = priceReferences[index - 1];
+                upper = priceReferences[index];
+                break;
+              }
+            }
+          }
+
+          var estimatedPrice = lower.price +
+            ((area - lower.area) * (upper.price - lower.price)) / (upper.area - lower.area);
+
+          return {
+            area: area,
+            price: estimatedPrice,
+            isReference: false,
+            reference: null
+          };
+        }
+
+        function calculateServings(area) {
+          return Math.max(1, Math.floor(area / SERVING_AREA_CM2));
+        }
+
+        function formatDimension(value) {
+          return new Intl.NumberFormat("ar-SA", { maximumFractionDigits: 1 }).format(value);
+        }
+
+        function isSameNumber(first, second) {
+          return Math.abs(first - second) < 0.000001;
+        }
+
+        function calculateAreaForPrice(price) {
+          var exactReference = priceReferences.find(function (item) {
+            return isSameNumber(item.price, price);
+          });
+
+          if (exactReference) {
+            return {
+              area: exactReference.area,
+              isReference: true,
+              reference: exactReference
+            };
+          }
+
+          var lower = priceReferences[0];
+          var upper = priceReferences[1];
+          var lastIndex = priceReferences.length - 1;
+
+          if (price >= priceReferences[lastIndex].price) {
+            lower = priceReferences[lastIndex - 1];
+            upper = priceReferences[lastIndex];
+          } else {
+            for (var index = 1; index < priceReferences.length; index += 1) {
+              if (price <= priceReferences[index].price) {
+                lower = priceReferences[index - 1];
+                upper = priceReferences[index];
+                break;
+              }
+            }
+          }
+
+          var estimatedArea = lower.area +
+            ((price - lower.price) * (upper.area - lower.area)) / (upper.price - lower.price);
+
+          return estimatedArea > 0
+            ? { area: estimatedArea, isReference: false, reference: null }
+            : null;
+        }
+
+        function suggestSizeForPrice(price, preferredWidth) {
+          var areaCalculation = calculateAreaForPrice(price);
+
+          if (!areaCalculation) {
+            return null;
+          }
+
+          var length;
+          var width;
+          var source;
+
+          if (areaCalculation.isReference && !preferredWidth) {
+            length = areaCalculation.reference.length;
+            width = areaCalculation.reference.width;
+            source = "reference";
+          } else if (preferredWidth) {
+            width = preferredWidth;
+            length = areaCalculation.area / width;
+            source = "preferred_width";
+          } else {
+            width = Math.sqrt(areaCalculation.area * 3 / 4);
+            length = areaCalculation.area / width;
+            source = "balanced";
+          }
+
+          return {
+            length: length,
+            width: width,
+            area: areaCalculation.area,
+            servings: calculateServings(areaCalculation.area),
+            isReference: areaCalculation.isReference && !preferredWidth,
+            source: source
+          };
+        }
+
+        function formatNumber(value) {
+          return new Intl.NumberFormat("ar-SA", { maximumFractionDigits: 2 }).format(value);
+        }
+
+        function renderResult() {
+          var length = parseMeasurement(lengthInput.value);
+          var width = parseMeasurement(widthInput.value);
+          var calculation = length && width ? calculatePrice(length, width) : null;
+
+          if (!length || !width) {
+            resultPanel.classList.add("is-unavailable");
+            priceElement.textContent = "—";
+            currencyElement.textContent = "";
+            servingsElement.textContent = "—";
+            messageElement.textContent = "اكتب الطول والعرض لإظهار السعر.";
+            statusElement.textContent = "بانتظار المقاس.";
+            return { lengthCm: length, widthCm: width, priceSAR: null, servings: null, status: "missing_measurement" };
+          }
+
+          var servings = calculateServings(calculation.area);
+          resultPanel.classList.remove("is-unavailable");
+          priceElement.textContent = formatNumber(calculation.price);
+          currencyElement.textContent = "ريال سعودي";
+          servingsElement.textContent = formatNumber(servings);
+          messageElement.textContent =
+            "مساحة الكيكة " + formatNumber(calculation.area) + " سم².";
+          statusElement.textContent = calculation.isReference
+            ? "هذا المقاس مطابق لسعر مرجعي معتمد."
+            : "السعر محسوب من مساحة الكيكة وتدرّج الأسعار المعتمد.";
+          return {
+            lengthCm: length,
+            widthCm: width,
+            areaSqCm: calculation.area,
+            priceSAR: calculation.price,
+            servings: servings,
+            status: calculation.isReference ? "reference_price" : "calculated"
+          };
+        }
+
+        function setMeasurements(length, width) {
+          lengthInput.value = String(length);
+          widthInput.value = String(width);
+          return renderResult();
+        }
+
+        function renderBudgetResult() {
+          var price = parseMeasurement(budgetInput.value);
+          var preferredWidthRaw = toWesternDigits(preferredWidthInput.value);
+          var hasPreferredWidth = preferredWidthRaw !== "";
+          var preferredWidth = hasPreferredWidth ? parseMeasurement(preferredWidthInput.value) : null;
+
+          if (!price || (hasPreferredWidth && !preferredWidth)) {
+            lastSuggestion = null;
+            budgetResult.classList.add("is-unavailable");
+            suggestedSizeElement.textContent = "—";
+            suggestionMessageElement.textContent = hasPreferredWidth
+              ? "اكتب عرضاً صحيحاً بالسنتيمتر."
+              : "اكتب سعراً صحيحاً لإظهار المقاس.";
+            suggestionServingsElement.textContent = "";
+            useSuggestionButton.disabled = true;
+            return { priceSAR: null, status: "missing_budget" };
+          }
+
+          var suggestion = suggestSizeForPrice(price, preferredWidth);
+          if (!suggestion) {
+            lastSuggestion = null;
+            budgetResult.classList.add("is-unavailable");
+            suggestedSizeElement.textContent = "—";
+            suggestionMessageElement.textContent = "أدخل سعراً أعلى من ٤٠ ريال ليعطي مساحة كيكة موجبة.";
+            suggestionServingsElement.textContent = "";
+            useSuggestionButton.disabled = true;
+            return { priceSAR: price, status: "budget_too_low" };
+          }
+
+          lastSuggestion = suggestion;
+          budgetResult.classList.remove("is-unavailable");
+          suggestedSizeElement.textContent =
+            formatDimension(suggestion.length) + " × " + formatDimension(suggestion.width) + " سم";
+          suggestionMessageElement.textContent = suggestion.isReference
+            ? "هذا السعر يطابق مقاساً مرجعياً معتمداً."
+            : suggestion.source === "preferred_width"
+              ? "تم حساب الطول على أساس العرض الذي أدخلته."
+              : "مقاس متوازن مقترح بنسبة ٤ : ٣؛ ويمكنك إدخال عرض آخر إن رغبت.";
+          suggestionServingsElement.textContent =
+            "يكفي تقريباً " + formatNumber(suggestion.servings) + " شخصاً.";
+          useSuggestionButton.disabled = false;
+          return {
+            priceSAR: price,
+            lengthCm: suggestion.length,
+            widthCm: suggestion.width,
+            areaSqCm: suggestion.area,
+            servings: suggestion.servings,
+            status: suggestion.isReference ? "reference_size" : "suggested_size"
+          };
+        }
+
+        form.addEventListener("submit", function (event) {
+          event.preventDefault();
+          renderResult();
+        });
+
+        budgetForm.addEventListener("submit", function (event) {
+          event.preventDefault();
+          renderBudgetResult();
+        });
+
+        lengthInput.addEventListener("input", renderResult);
+        widthInput.addEventListener("input", renderResult);
+        budgetInput.addEventListener("input", renderBudgetResult);
+        preferredWidthInput.addEventListener("input", renderBudgetResult);
+
+        useSuggestionButton.addEventListener("click", function () {
+          if (!lastSuggestion) {
+            return;
+          }
+          setMeasurements(
+            Math.round(lastSuggestion.length * 100) / 100,
+            Math.round(lastSuggestion.width * 100) / 100
+          );
+        });
+
+        renderResult();
+        renderBudgetResult();
+
+        var context = document.modelContext;
+        if (!context || !context.registerTool) {
+          return;
+        }
+
+        var lifecycle = new AbortController();
+        try {
+          function registerTool(tool) {
+            Promise.resolve(context.registerTool(tool, { signal: lifecycle.signal })).catch(function () {});
+          }
+
+          registerTool({
+            name: "calculate_cake_price",
+            title: "حساب سعر الكيك",
+            description: "يحسب سعر الكيك وعدد الأشخاص لأي طول وعرض من مساحة الكيكة وتدرج الأسعار المرجعية المعتمدة.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                lengthCm: { type: "number", description: "طول الكيكة بالسنتيمتر." },
+                widthCm: { type: "number", description: "عرض الكيكة بالسنتيمتر." }
+              },
+              required: ["lengthCm", "widthCm"],
+              additionalProperties: false
+            },
+            annotations: {
+              readOnlyHint: true,
+              untrustedContentHint: false
+            },
+            execute: function (input) {
+              if (!input || !Number.isFinite(input.lengthCm) || !Number.isFinite(input.widthCm) ||
+                input.lengthCm <= 0 || input.widthCm <= 0) {
+                throw new Error("أدخل طولاً وعرضاً صحيحين بالسنتيمتر.");
+              }
+              return setMeasurements(input.lengthCm, input.widthCm);
+            }
+          });
+
+          registerTool({
+            name: "calculate_cake_servings",
+            title: "حساب عدد الأشخاص للكيكة",
+            description: "يقدّر عدد الأشخاص الذين تكفيهم الكيكة من طولها وعرضها، على أساس حصة متوسطة ٥ × ١٠ سم.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                lengthCm: { type: "number", description: "طول الكيكة بالسنتيمتر." },
+                widthCm: { type: "number", description: "عرض الكيكة بالسنتيمتر." }
+              },
+              required: ["lengthCm", "widthCm"],
+              additionalProperties: false
+            },
+            annotations: {
+              readOnlyHint: true,
+              untrustedContentHint: false
+            },
+            execute: function (input) {
+              if (!input || !Number.isFinite(input.lengthCm) || !Number.isFinite(input.widthCm) ||
+                input.lengthCm <= 0 || input.widthCm <= 0) {
+                throw new Error("أدخل طولاً وعرضاً صحيحين بالسنتيمتر.");
+              }
+              return setMeasurements(input.lengthCm, input.widthCm);
+            }
+          });
+
+          registerTool({
+            name: "suggest_cake_size_for_price",
+            title: "اقتراح مقاس كيكة من السعر",
+            description: "يقترح طول وعرض كيكة من السعر المتاح، مع إمكانية تحديد عرض مطلوب لحساب الطول المناسب.",
+            inputSchema: {
+              type: "object",
+              properties: {
+                priceSAR: { type: "number", description: "الميزانية المتاحة بالريال السعودي." },
+                preferredWidthCm: { type: "number", description: "عرض اختياري بالسنتيمتر." }
+              },
+              required: ["priceSAR"],
+              additionalProperties: false
+            },
+            annotations: {
+              readOnlyHint: true,
+              untrustedContentHint: false
+            },
+            execute: function (input) {
+              if (!input || !Number.isFinite(input.priceSAR) || input.priceSAR <= 0 ||
+                (input.preferredWidthCm !== undefined &&
+                  (!Number.isFinite(input.preferredWidthCm) || input.preferredWidthCm <= 0))) {
+                throw new Error("أدخل سعراً صحيحاً، وعرضاً صحيحاً إن حددته.");
+              }
+              budgetInput.value = String(input.priceSAR);
+              preferredWidthInput.value = input.preferredWidthCm === undefined
+                ? ""
+                : String(input.preferredWidthCm);
+              return renderBudgetResult();
+            }
+          });
+        } catch (error) {
+          // The calculator remains fully functional when WebMCP is unavailable.
+        }
+      })();
+    </script>
+  </body>
+</html>
